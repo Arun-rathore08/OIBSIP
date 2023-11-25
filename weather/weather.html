@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('photoURL');
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #weather-container {
+      background-color: #f5f5f5;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    #background-container {
+      min-height: 300px;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 20px;
+    }
+
+    #city-input {
+      width: 200px;
+    }
+  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Weather App</h1>
+    <form id="weather-form">
+      <label for="city-input">Enter City:</label>
+      <input type="text" id="city-input" required>
+      <button type="submit" class="btn btn-primary">Get Weather</button>
+    </form>
+    <div id="weather-container"></div>
+    <div id="background-container"></div>
+  </div>
+
+  <script>
+    // API endpoint for weather data
+    const weatherAPI = 'https://api.openweathermap.org/data/2.5/weather';
+    const apiKey = '38b46d9d2255a70fcc8179e9a6466a33';
+
+
+    // Get DOM elements
+    const weatherContainer = document.getElementById('weather-container');
+    const backgroundContainer = document.getElementById('background-container');
+
+    // Function to fetch weather data
+    async function getWeatherData(city) {
+      const response = await fetch(`${weatherAPI}?q=${city}&appid=${apiKey}&units=metric`);
+      const data = await response.json();
+      return data;
+    }
+
+    // Function to display weather data
+    function displayWeatherData(data) {
+      const weatherCondition = data.weather[0].main;
+      const temperature = data.main.temp;
+      const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
+      const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
+      const currentDate = new Date().toDateString();
+      const currentTime = new Date().toLocaleTimeString();
+
+      const weatherHTML = `
+        <h2>Weather Condition: ${weatherCondition}</h2>
+        <p>Temperature: ${temperature}°C</p>
+        <p>Sunrise: ${sunrise}</p>
+        <p>Sunset: ${sunset}</p>
+        <p>Date: ${currentDate}</p>
+        <p>Time: ${currentTime}</p>
+      `;
+
+      weatherContainer.innerHTML = weatherHTML;
+    }
+
+    // Function to display background photo
+    function displayBackgroundPhoto(data) {
+      const photoURL = `https://source.unsplash.com/1600x900/?${data.name}`;
+      backgroundContainer.style.backgroundImage = `url(${photoURL})`;
+      //document.body.style.backgroundImage = "url('photoURL')";
+    }
+
+    // Function to fetch weather data and display it
+    async function getAndDisplayWeather(city) {
+      try {
+        const weatherData = await getWeatherData(city);
+        displayWeatherData(weatherData);
+        displayBackgroundPhoto(weatherData);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    // Get user input and fetch weather data on form submit
+    const form = document.getElementById('weather-form');
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const city = document.getElementById('city-input').value;
+      getAndDisplayWeather(city);
+    });
+  </script>
+</body>
+
+</html>
